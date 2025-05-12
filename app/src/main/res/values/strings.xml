@@ -1,0 +1,59 @@
+<resources>
+<!--    App -->
+    <string name="app_name">Hematin</string>
+    <string name="logo_hematin">Logo Hematin</string>
+
+<!--    Onboarding  -->
+    <string name="onboarding_title_first">Kelola Keuanganmu dengan Mudah</string>
+    <string name="onboarding_title_second">Dapatkan Insight Keuangan yang Cerdas</string>
+    <string name="onboarding_title_third">Saatnya Tentukan Pilihanmu</string>
+
+    <string name="onboarding_description_first">Simpan semua transaksi harianmu dengan mudah untuk memantau arus keuangan.</string>
+    <string name="onboarding_description_second">Dapatkan insight otomatis dan grafik sederhana untuk bantu kelola uangmu.</string>
+    <string name="onboarding_description_third">Pilih untuk lebih bijak secara finansial dan capai tujuanmu bersama Hematin!</string>
+
+
+<!--    Sign in / Sign up-->
+    <string name="sign_in">Masuk</string>
+    <string name="sign_up">Buat Akun</string>
+    <string name="skip">Skip</string>
+    <string name="forgot_password">Lupa Kata Sandi?</string>
+    <string name="change_password">Ubah Kata Sandi</string>
+    <string name="continue_facebook">Facebook</string>
+    <string name="continue_google">Google</string>
+    <string name="continue_text">Atau lanjutkan dengan</string>
+    <string name="dont_have_account_text">Belum punya akun?</string>
+    <string name="already_have_account">Sudah punya akun?</string>
+    <string name="create_now_text">Buat sekarang</string>
+
+<!--    Input Field -->
+    <string name="email">Email</string>
+    <string name="registered_email">Email yang sudah diregistrasi</string>
+    <string name="password">Kata Sandi</string>
+    <string name="password_confirm">Konfirmasi Kata Sandi</string>
+    <string name="username">Nama Pengguna</string>
+    <string name="phone_number">Nomor Telpon</string>
+
+
+<!--    Home Page-->
+    <string name="greetings">Selamat Sore,</string>
+    <string name="user">Pengguna</string>
+    <string name="total_balance">Total Tabungan</string>
+    <string name="total_balance_value">Rp.4.000,00</string>
+    <string name="income">Pemasukan</string>
+    <string name="expenses">Pengeluaran</string>
+    <string name="transaction_history">Riwayat Transaksi</string>
+    <string name="see_all">Lihat semua</string>
+    <string name="name_record">Starbuck</string>
+    <string name="date">Jan 30, 2025</string>
+    <string name="value_income">+ Rp.50.000,00</string>
+    <string name="value_expense">- Rp.46.000,00 </string>
+
+<!-- Statistic -->
+    <string name="statistic">Statistik</string>
+    <string name="top_spending">Pengeluaran Terbanyak</string>
+    <string name="day">Hari</string>
+    <string name="week">Minggu</string>
+    <string name="month">Bulan</string>
+    <string name="year">Tahun</string>
+</resources>
