@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
@@ -20,12 +19,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.hematin.R
 import com.example.hematin.domain.models.OnboardingModel
+import com.example.hematin.presentation.ui.navigation.Screen
 import kotlinx.coroutines.launch
 
 @Composable
-fun OnboardingScreen(onFinished: () -> Unit) {
+fun OnboardingScreen(navController: NavController) {
 
     val pages = listOf(OnboardingModel.FirstPages, OnboardingModel.SecondPages, OnboardingModel.ThirdPages)
     val pagerState = rememberPagerState(initialPage = 0) { pages.size }
@@ -99,7 +100,7 @@ fun OnboardingScreen(onFinished: () -> Unit) {
                             if(pagerState.currentPage < pages.size - 1) {
                                 pagerState.animateScrollToPage(pagerState.currentPage + 1)
                             } else {
-                                onFinished()
+                                navController.navigate(Screen.loginScreen)
                             }
                         }
                     }

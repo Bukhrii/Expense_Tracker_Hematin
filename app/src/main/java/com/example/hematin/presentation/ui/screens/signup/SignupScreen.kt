@@ -48,9 +48,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.navigation.NavController
+import com.example.hematin.presentation.ui.navigation.Screen
 
 @Composable
-fun SignupScreen(modifier: Modifier = Modifier) {
+fun SignupScreen(navController: NavController) {
 
     Column(
         modifier = Modifier
@@ -59,7 +61,7 @@ fun SignupScreen(modifier: Modifier = Modifier) {
     ) {
         TextButton(
             onClick = {
-
+                navController.navigate(Screen.homeScreen)
             },
             modifier = Modifier.align(Alignment.End)
         ) {
@@ -78,7 +80,6 @@ fun SignupScreen(modifier: Modifier = Modifier) {
                 painter = painterResource(R.drawable.signup),
                 contentDescription = stringResource(R.string.sign_up),
                 modifier = Modifier.size(250.dp)
-
             )
 
             Text(
@@ -222,7 +223,7 @@ fun SignupScreen(modifier: Modifier = Modifier) {
 
             Button(
                 onClick = {
-
+                    navController.navigate(Screen.loginScreen)
                 },
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
@@ -246,7 +247,7 @@ fun SignupScreen(modifier: Modifier = Modifier) {
                 )
                 TextButton(
                     onClick = {
-
+                        navController.navigate(Screen.loginScreen)
                     }
                 ) {
                     Text(

@@ -10,14 +10,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -27,7 +23,6 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,15 +41,16 @@ import com.example.hematin.R
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.navigation.NavController
+import com.example.hematin.presentation.ui.navigation.Screen
 
 @Composable
-fun LoginScreen(modifier: Modifier = Modifier) {
+fun LoginScreen(navController: NavController) {
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -62,7 +58,7 @@ fun LoginScreen(modifier: Modifier = Modifier) {
     ) {
         TextButton(
             onClick = {
-
+                navController.navigate(Screen.homeScreen)
             },
             modifier = Modifier.align(Alignment.End)
         ) {
@@ -153,7 +149,7 @@ fun LoginScreen(modifier: Modifier = Modifier) {
 
             TextButton(
                 onClick = {
-
+                    navController.navigate(Screen.resetPasswordScreen)
                 },
                 modifier = Modifier.align(Alignment.End)
             ) {
@@ -166,7 +162,7 @@ fun LoginScreen(modifier: Modifier = Modifier) {
 
             Button(
                 onClick = {
-
+                    navController.navigate(Screen.homeScreen)
                 },
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
@@ -192,7 +188,7 @@ fun LoginScreen(modifier: Modifier = Modifier) {
 
             Row(modifier = Modifier.fillMaxWidth()) {
                 Button(onClick = {
-
+                    navController.navigate(Screen.homeScreen)
                 }, shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = colorResource(R.color.primary_green)
@@ -214,7 +210,7 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                 Spacer(modifier = Modifier.padding(8.dp))
 
                 Button(onClick = {
-
+                    navController.navigate(Screen.homeScreen)
                 },
                     shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -246,7 +242,7 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                 )
                 TextButton(
                     onClick = {
-
+                        navController.navigate(Screen.signupScreen)
                     }
                 ) {
                     Text(

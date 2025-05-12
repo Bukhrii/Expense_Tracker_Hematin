@@ -56,4 +56,44 @@
     <string name="week">Minggu</string>
     <string name="month">Bulan</string>
     <string name="year">Tahun</string>
+
+<!--    Transaction List-->
+    <string name="transaction_list">Daftar Transaksi</string>
+    <string name="edit_transaction">Ubah Transaksi</string>
+    <string name="delete_transaction">Hapus Transaksi</string>
+    <string name="detail">Detail</string>
+
+<!--    Transaction Details-->
+    <string name="detail_transaction">Detail Transaksi</string>
+    <string name="status_transaction">Status</string>
+    <string name="from_transaction">Dari</string>
+    <string name="time_transaction">Waktu</string>
+    <string name="date_transaction">Tanggal</string>
+    <string name="earnings_transaction">Pendapatan</string>
+    <string name="fee_transaction">Pajak</string>
+    <string name="total_transaction">Total</string>
+
+    <string name="status_transaction_value">Pendapatan</string>
+    <string name="from_transaction_value">Beasiswa</string>
+    <string name="time_transaction_value">10:00 AM</string>
+    <string name="date_transaction_value">Feb 30, 2022</string>
+    <string name="earnings_transaction_value">Rp.55.000</string>
+    <string name="fee_transaction_value">Rp.5.000</string>
+    <string name="total_transaction_value">Rp.50.000</string>
+
+<!--    Add Transaction-->
+    <string name="add_transaction">Tambah Transaksi</string>
+    <string name="name_transaction">Nama</string>
+    <string name="amount_transaction">Jumlah</string>
+
+<!--    Profile-->
+    <string name="profile">Profil</string>
+    <string name="full_name">Muhammad Bukhari Fitri</string>
+    <string name="user_name">\@mhmmd_bukharii</string>
+    <string name="invite_friends">Undang teman</string>
+    <string name="account_info">Info Akun</string>
+    <string name="personal_profile">Profil Pribadi</string>
+    <string name="message_center">Layanan Pesan</string>
+    <string name="login_and_security">Login dan Keamanan</string>
+    <string name="data_and_privacy">Data dan Privasi</string>
 </resources>
