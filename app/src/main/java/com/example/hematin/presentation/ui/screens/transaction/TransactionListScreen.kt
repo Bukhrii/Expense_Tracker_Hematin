@@ -36,6 +36,7 @@ import androidx.navigation.NavController
 import com.example.hematin.presentation.ui.components.Icons.BackButtonIconOnprimary
 import com.example.hematin.presentation.ui.components.Icons.NotificationButtonIcon
 import com.example.hematin.presentation.ui.components.bottomNav.BottomNavigation
+import com.example.hematin.presentation.ui.navigation.Screen
 
 @Composable
 fun TransactionListScreen(navController: NavController) {
@@ -142,7 +143,7 @@ fun TransactionListScreen(navController: NavController) {
                                         )
                                         OutlinedButton(
                                             onClick = {
-
+                                                navController.navigate(Screen.transactionDetailScreen)
                                             },
                                             modifier = Modifier.width(90.dp)
                                         ) {
