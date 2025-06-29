@@ -23,8 +23,8 @@ import com.example.hematin.R
 fun IndicatorOnboarding(
     pageSize: Int,
     currentPage: Int,
-    selectedColor: Color = colorResource(R.color.primary_dark_green),
-    unselectedColor: Color = colorResource(R.color.secondary_light_green)
+    selectedColor: Color = MaterialTheme.colorScheme.primary,
+    unselectedColor: Color = MaterialTheme.colorScheme.secondary
 ) {
 
     Row(horizontalArrangement = Arrangement.SpaceBetween) {

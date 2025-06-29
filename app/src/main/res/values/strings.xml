@@ -16,6 +16,7 @@
 <!--    Sign in / Sign up-->
     <string name="sign_in">Masuk</string>
     <string name="sign_up">Buat Akun</string>
+    <string name="log_out">Keluar Akun</string>
     <string name="skip">Skip</string>
     <string name="forgot_password">Lupa Kata Sandi?</string>
     <string name="change_password">Ubah Kata Sandi</string>
@@ -25,6 +26,7 @@
     <string name="dont_have_account_text">Belum punya akun?</string>
     <string name="already_have_account">Sudah punya akun?</string>
     <string name="create_now_text">Buat sekarang</string>
+    <string name="authenticate_error_empty">Email atau password tidak boleh kosong</string>
 
 <!--    Input Field -->
     <string name="email">Email</string>
@@ -36,7 +38,7 @@
 
 
 <!--    Home Page-->
-    <string name="greetings">Selamat Sore,</string>
+    <string name="greetings">Selamat Datang,</string>
     <string name="user">Pengguna</string>
     <string name="total_balance">Total Tabungan</string>
     <string name="total_balance_value">Rp.4.000,00</string>

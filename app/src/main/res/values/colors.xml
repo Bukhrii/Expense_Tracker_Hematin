@@ -8,8 +8,10 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="primary_dark_green">#004d00</color>
-    <color name="primary_green">#007a33</color>
-    <color name="secondary_light_green">#66b3a1</color>
+    <color name="primary_green">#004d00</color>
     <color name="secondary_lighter_green">#b2e0d4</color>
     <color name="secondary_lightest_green">#e0f7f1</color>
+    <color name="secondary_light_green">#66b3a1</color>
+    <color name="success">#FF2E7D32</color>
+    <color name="error">#FFB00020</color>
 </resources>

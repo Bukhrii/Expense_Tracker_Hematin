@@ -14,8 +14,8 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun ButtonOnboarding(
     text: String,
-    backgroundColor: Color = MaterialTheme.colorScheme.primary,
-    textColor: Color = MaterialTheme.colorScheme.onPrimary,
+    backgroundColor: Color = MaterialTheme.colorScheme.background,
+    textColor: Color = MaterialTheme.colorScheme.primary,
     textStyle: TextStyle = MaterialTheme.typography.titleMedium,
     fontSize: Int = 13,
     onClick: () -> Unit

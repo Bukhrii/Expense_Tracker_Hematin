@@ -1,5 +1,6 @@
-package com.example.hematin.presentation.ui.screens.login
+package com.example.hematin.presentation.ui.screens.auth
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,8 +15,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -23,6 +26,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -39,35 +44,53 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.example.hematin.R
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.hematin.presentation.ui.navigation.Screen
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(
+    authViewModel: AuthViewModel = hiltViewModel(),
+    onLoginSuccess: () -> Unit,
+    onNavigateToSignUp: () -> Unit
+) {
+
+    var textEmail by remember { mutableStateOf("") }
+    var textPassword by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+
+    val authState by authViewModel.authState.observeAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(authState) {
+        when (val state = authState) {
+            is AuthState.Authenticated -> {
+                // --- TAMBAHKAN TOAST DI SINI ---
+                Toast.makeText(context, "Login berhasil!", Toast.LENGTH_SHORT).show()
+                // Panggil lambda untuk navigasi
+                onLoginSuccess()
+            }
+            is AuthState.Error -> {
+                Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+            }
+            else -> Unit
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState())
     ) {
-        TextButton(
-            onClick = {
-                navController.navigate(Screen.homeScreen)
-            },
-            modifier = Modifier.align(Alignment.End)
-        ) {
-            Text(
-                text = stringResource(R.string.skip),
-                fontSize = 16.sp,
-                color = Color.Gray
-            )
-        }
         Column(horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
                 modifier = Modifier.padding(horizontal = 30.dp)
@@ -88,12 +111,11 @@ fun LoginScreen(navController: NavController) {
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.primary
             )
 
             Spacer(modifier = Modifier.padding(10.dp))
 
-            var textEmail by remember { mutableStateOf("") }
             OutlinedTextField(
                 value = textEmail,
                 onValueChange = { textEmail = it },
@@ -106,8 +128,8 @@ fun LoginScreen(navController: NavController) {
                 },
                 label = { Text(stringResource(R.string.email)) },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = colorResource(R.color.primary_green),
-                    focusedLabelColor = colorResource(R.color.primary_green)
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier.fillMaxWidth()
@@ -115,8 +137,6 @@ fun LoginScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.padding(4.dp))
 
-            var textPassword by remember { mutableStateOf("") }
-            var passwordVisible by remember { mutableStateOf(false) }
             OutlinedTextField(
                 value = textPassword,
                 onValueChange = { textPassword = it },
@@ -129,8 +149,8 @@ fun LoginScreen(navController: NavController) {
                 },
                 label = { Text(stringResource(R.string.password)) },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = colorResource(R.color.primary_green),
-                    focusedLabelColor = colorResource(R.color.primary_green)
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -149,7 +169,7 @@ fun LoginScreen(navController: NavController) {
 
             TextButton(
                 onClick = {
-                    navController.navigate(Screen.resetPasswordScreen)
+                    onNavigateToSignUp()
                 },
                 modifier = Modifier.align(Alignment.End)
             ) {
@@ -162,17 +182,26 @@ fun LoginScreen(navController: NavController) {
 
             Button(
                 onClick = {
-                    navController.navigate(Screen.homeScreen)
+                    authViewModel.login(textEmail, textPassword)
                 },
+                enabled = authState !is AuthState.Loading,
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(R.color.primary_green)
+                    containerColor = MaterialTheme.colorScheme.primary
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
             ) {
-                Text(text = stringResource(R.string.sign_in))
+                if (authState is AuthState.Loading) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(text = stringResource(R.string.sign_in))
+                }
             }
 
             Spacer(modifier = Modifier.padding(14.dp))
@@ -188,10 +217,10 @@ fun LoginScreen(navController: NavController) {
 
             Row(modifier = Modifier.fillMaxWidth()) {
                 Button(onClick = {
-                    navController.navigate(Screen.homeScreen)
+
                 }, shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = colorResource(R.color.primary_green)
+                        containerColor = MaterialTheme.colorScheme.primary
                     ),
                     modifier = Modifier
                         .weight(0.3f)
@@ -210,11 +239,11 @@ fun LoginScreen(navController: NavController) {
                 Spacer(modifier = Modifier.padding(8.dp))
 
                 Button(onClick = {
-                    navController.navigate(Screen.homeScreen)
+
                 },
                     shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = colorResource(R.color.primary_green)
+                        containerColor = MaterialTheme.colorScheme.primary
                     ),
                     modifier = Modifier
                         .weight(0.3f)
@@ -242,12 +271,12 @@ fun LoginScreen(navController: NavController) {
                 )
                 TextButton(
                     onClick = {
-                        navController.navigate(Screen.signupScreen)
+                        onNavigateToSignUp()
                     }
                 ) {
                     Text(
                         text = stringResource(R.string.create_now_text),
-                        color = colorResource(R.color.primary_dark_green),
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 14.sp
                     )
                 }

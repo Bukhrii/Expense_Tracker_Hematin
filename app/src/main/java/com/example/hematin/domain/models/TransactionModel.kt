@@ -1,10 +1,18 @@
 package com.example.hematin.domain.models
 
+import com.google.firebase.firestore.DocumentId
+import java.util.Date
+
 data class TransactionModel(
-    val title: String,
-    val date: java.util.Date,
-    val amount: Double,
-    val category: String,
-    val account: String,
-    val transactionType: String
+    @DocumentId
+    val id: String = "",
+    val userId: String? = null,
+    val title: String = "",
+    val amount: Double = 0.0,
+    val category: String = "",
+    val date: Date = Date(),
+
+    // PERBAIKAN: Ganti 'type' dan 'description' dengan field yang benar
+    val account: String = "",
+    val transactionType: String = "" // "income" atau "expense"
 )

@@ -18,6 +18,7 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,59 +43,59 @@ fun BottomNavigation(navController: NavController) {
                 .background(Color.White)
                 .height(70.dp)) {
             IconButton(onClick = {
-                navController.navigate(Screen.homeScreen)
+                navController.navigate(Screen.HomeScreen.route)
             }) {
                 Icon(
                     imageVector = Icons.Filled.Home,
                     contentDescription = null,
-                    tint = if (currentRoute == Screen.homeScreen) colorResource(R.color.primary_dark_green) else Color.Gray,
+                    tint = if (currentRoute == Screen.HomeScreen.route) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(35.dp)
                 )
             }
 
             IconButton(onClick = {
-                navController.navigate(Screen.statisticScreen)
+                navController.navigate(Screen.StatisticScreen.route)
             }) {
                 Icon(
                     imageVector = Icons.Outlined.BarChart,
                     contentDescription = null,
-                    tint = if (currentRoute == Screen.statisticScreen) colorResource(R.color.primary_dark_green) else Color.Gray,
+                    tint = if (currentRoute == Screen.StatisticScreen.route) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(35.dp)
                 )
             }
 
             IconButton(onClick = {
-                navController.navigate(Screen.transactionListScreen)
+                navController.navigate(Screen.TransactionListScreen.route)
             }) {
                 Icon(
                     imageVector = Icons.Outlined.AccountBalanceWallet,
                     contentDescription = null,
                     tint = when (currentRoute) {
-                        Screen.transactionListScreen -> colorResource(R.color.primary_dark_green)
-                        Screen.transactionDetailScreen -> colorResource(R.color.primary_dark_green)
-                        Screen.addTransactionScreen -> colorResource(R.color.primary_dark_green)
-                        else -> Color.Gray},
+                        Screen.TransactionListScreen.route -> MaterialTheme.colorScheme.primary
+                        Screen.TransactionDetailScreen.route -> MaterialTheme.colorScheme.primary
+                        Screen.AddTransactionScreen.route -> MaterialTheme.colorScheme.primary
+                        else -> MaterialTheme.colorScheme.onSurfaceVariant},
                     modifier = Modifier.size(35.dp)
                 )
             }
 
             IconButton(onClick = {
-                navController.navigate(Screen.profileScreen)
+                navController.navigate(Screen.ProfileScreen.route)
             }) {
                 Icon(
                     imageVector = Icons.Outlined.Person,
                     contentDescription = null,
-                    tint = if (currentRoute == Screen.profileScreen) colorResource(R.color.primary_dark_green) else Color.Gray,
+                    tint = if (currentRoute == Screen.ProfileScreen.route) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(35.dp)
                 )
             }
 
         }
         FloatingActionButton(onClick = {
-            navController.navigate(Screen.addTransactionScreen)
+            navController.navigate(Screen.AddTransactionScreen.route)
         },
             shape = CircleShape,
-            containerColor = colorResource(R.color.primary_dark_green),
+            containerColor = MaterialTheme.colorScheme.primary,
             modifier = Modifier.offset(y = (-40).dp)
         ) {
             Icon(imageVector = Icons.Filled.Add,

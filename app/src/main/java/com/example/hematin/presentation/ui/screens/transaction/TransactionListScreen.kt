@@ -1,9 +1,11 @@
 package com.example.hematin.presentation.ui.screens.transaction
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.layout.Arrangement
@@ -16,11 +18,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -32,15 +36,27 @@ import androidx.compose.ui.unit.sp
 import com.example.hematin.R
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.colorResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.hematin.presentation.ui.components.Icons.BackButtonIconOnprimary
 import com.example.hematin.presentation.ui.components.Icons.NotificationButtonIcon
 import com.example.hematin.presentation.ui.components.bottomNav.BottomNavigation
 import com.example.hematin.presentation.ui.navigation.Screen
+import com.example.hematin.util.formatAmount
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
-fun TransactionListScreen(navController: NavController) {
-    Surface(modifier = Modifier.fillMaxSize()) {
+fun TransactionListScreen(
+    navController: NavController,
+    viewModel: TransactionViewModel = hiltViewModel()
+) {
+    val state by viewModel.state
+    val listState = state.listState
+
+    val totalBalance = listState.transactions.sumOf { if (it.transactionType == "Pemasukan") it.amount else -it.amount }
+
+    Surface(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Scaffold(
             bottomBar = {
                 Box(contentAlignment = Alignment.Center,modifier = Modifier.fillMaxWidth()) {
@@ -68,7 +84,7 @@ fun TransactionListScreen(navController: NavController) {
                             modifier = Modifier
                                 .fillMaxWidth()
                         ) {
-                            BackButtonIconOnprimary()
+                            BackButtonIconOnprimary(onClick = { navController.popBackStack() })
                             Text(
                                 text = stringResource(R.string.transaction_list),
                                 style = MaterialTheme.typography.titleLarge,
@@ -87,7 +103,7 @@ fun TransactionListScreen(navController: NavController) {
                             defaultElevation = 20.dp
                         ),
                         colors = CardDefaults.elevatedCardColors(
-                            containerColor = Color.White
+                            containerColor = MaterialTheme.colorScheme.background
                         ),
                         shape = RoundedCornerShape(36.dp),
                         modifier = Modifier
@@ -104,46 +120,56 @@ fun TransactionListScreen(navController: NavController) {
                             Text(
                                 text = stringResource(R.string.total_balance),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = Color.DarkGray,
+                                color = MaterialTheme.colorScheme.onBackground,
                                 fontSize = 20.sp
                             )
                             Spacer(modifier = Modifier.padding(8.dp))
                             Text(
-                                text = stringResource(R.string.total_balance_value),
+                                text = "Rp ${formatAmount(totalBalance)}",
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.DarkGray,
+                                color = MaterialTheme.colorScheme.onBackground,
                                 fontSize = 40.sp
                             )
                             Spacer(modifier = Modifier.padding(8.dp))
+
+                            if (listState.isLoading) {
+                                CircularProgressIndicator()
+                            }
+
                             LazyColumn {
-                                items(10) {
-                                        index ->
+                                items(listState.transactions) {transaction ->
+                                    val sdf = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
+                                    val dateString = sdf.format(transaction.date)
                                     Row(horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically,
                                         modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
-                                        Column {
+                                        Column(modifier = Modifier.weight(1f)) {
                                             Text(
-                                                text = stringResource(R.string.name_record),
-                                                style = MaterialTheme.typography.titleLarge,
+                                                text = transaction.title,
+                                                style = MaterialTheme.typography.titleMedium,
                                                 fontWeight = FontWeight.Bold,
+                                                color = MaterialTheme.colorScheme.onBackground,
                                                 fontSize = 16.sp
                                             )
                                             Text(
-                                                text = stringResource(R.string.date),
+                                                text = "${transaction.category} • $dateString",
                                                 style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onBackground,
                                                 fontSize = 14.sp
                                             )
                                         }
+                                        Spacer(modifier = Modifier.width(8.dp))
                                         Text(
-                                            text = stringResource(R.string.value_income),
-                                            color = colorResource(R.color.primary_green),
+                                            text = "Rp. ${formatAmount(transaction.amount)}",
+                                            color = if (transaction.transactionType == "Pemasukan") MaterialTheme.colorScheme.primary else Color.Red,
                                             style = MaterialTheme.typography.bodyMedium,
                                             fontSize = 14.sp
                                         )
+                                        Spacer(modifier = Modifier.width(8.dp))
                                         OutlinedButton(
                                             onClick = {
-                                                navController.navigate(Screen.transactionDetailScreen)
+                                                navController.navigate(Screen.TransactionDetailScreen.route + "/${transaction.id}")
                                             },
                                             modifier = Modifier.width(90.dp)
                                         ) {

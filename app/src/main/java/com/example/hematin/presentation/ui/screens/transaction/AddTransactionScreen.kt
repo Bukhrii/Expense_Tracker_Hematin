@@ -1,218 +1,301 @@
 package com.example.hematin.presentation.ui.screens.transaction
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.ImportExport
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import com.example.hematin.R
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.hematin.R
+import com.example.hematin.domain.models.TransactionModel
 import com.example.hematin.presentation.ui.components.DateInput
 import com.example.hematin.presentation.ui.components.Icons.BackButtonIconOnprimary
 import com.example.hematin.presentation.ui.components.Icons.NotificationButtonIcon
 import com.example.hematin.presentation.ui.components.bottomNav.BottomNavigation
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddTransactionScreen(navController: NavController) {
+fun AddTransactionScreen(
+    navController: NavController,
+    transactionId: String?,
+    viewModel: TransactionViewModel = hiltViewModel()
+) {
+    val state by viewModel.state
+    val context = LocalContext.current
+
+    val isEditMode = transactionId != null
+    val existingTransaction by remember(transactionId, state.listState.transactions) {
+        derivedStateOf {
+            if (isEditMode) {
+                state.listState.transactions.find { it.id == transactionId }
+            } else {
+                null
+            }
+        }
+    }
+
+    var transactionName by remember { mutableStateOf("") }
+    var transactionAmount by remember { mutableStateOf("") }
+    var transactionStatus by remember { mutableStateOf("") }
+    var transactionAccount by remember { mutableStateOf("") }
+    var transactionCategory by remember { mutableStateOf("") }
+
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = existingTransaction?.date?.time
+    )
+
+    var expandedStatus by remember { mutableStateOf(false) }
+    val listStatus = listOf("Pemasukan", "Pengeluaran")
+    var expandedAccount by remember { mutableStateOf(false) }
+    val listAccount = listOf("Dompet", "Bank", "E-Wallet")
+    var expandedCategory by remember { mutableStateOf(false) }
+    val listCategory = listOf("Makanan", "Transportasi", "Belanja", "Hiburan", "Gaji", "Lainnya")
+
+    LaunchedEffect(existingTransaction) {
+        existingTransaction?.let {
+            transactionName = it.title
+            transactionAmount = it.amount.toLong().toString()
+            transactionStatus = it.transactionType
+            transactionAccount = it.account
+            transactionCategory = it.category
+            // Set tanggal di DatePicker
+            datePickerState.selectedDateMillis = it.date.time
+        }
+    }
+
+    LaunchedEffect(state.addState) {
+        val addState = state.addState
+        if (addState.addSuccess) {
+            val message = if (isEditMode) "Transaksi berhasil diperbarui!" else "Transaksi berhasil ditambahkan!"
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            viewModel.onAddSuccessShown()
+            navController.popBackStack()
+        }
+        addState.error?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+        }
+    }
+
     Surface(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             bottomBar = {
-                Box(contentAlignment = Alignment.Center,modifier = Modifier.fillMaxWidth()) {
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
                     BottomNavigation(navController = navController)
                 }
             }
         ) { paddingValues ->
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(paddingValues),
-
-                ) {
-                Image(painter = painterResource(R.drawable.ic_topbar), contentDescription = null, modifier = Modifier.fillMaxWidth())
-
-                Column(
-                    modifier = Modifier.padding(
-                        top = 80.dp,
-                    )
-                ) {
-                    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                        ) {
-                            BackButtonIconOnprimary()
-                            Text(
-                                text = stringResource(R.string.add_transaction),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                            NotificationButtonIcon()
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Image(painter = painterResource(R.drawable.ic_topbar), contentDescription = null, modifier = Modifier.fillMaxWidth())
+                    Column(
+                        modifier = Modifier.padding(top = 80.dp)
+                    ) {
+                        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                BackButtonIconOnprimary(onClick = { navController.popBackStack() })
+                                Text(
+                                    text = if (isEditMode) "Edit Transaksi" else "Tambah Transaksi",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
+                                NotificationButtonIcon()
+                            }
                         }
                         Spacer(modifier = Modifier.padding(vertical = 14.dp))
-
                         ElevatedCard(
-                            elevation = CardDefaults.cardElevation(
-                                defaultElevation = 20.dp
-                            ),
-                            colors = CardDefaults.elevatedCardColors(
-                                containerColor = Color.White
-                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 20.dp),
+                            colors = CardDefaults.elevatedCardColors(MaterialTheme.colorScheme.background),
                             shape = RoundedCornerShape(36.dp),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .fillMaxHeight()
+                                .padding(start = 16.dp, end = 16.dp, bottom = 20.dp)
                                 .offset(y = 20.dp)
                         ) {
                             Column(
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 30.dp, horizontal = 30.dp)) {
-
-                                var transactionName by remember { mutableStateOf("") }
+                                    .padding(vertical = 30.dp, horizontal = 30.dp)
+                            ) {
                                 OutlinedTextField(
                                     value = transactionName,
                                     onValueChange = { transactionName = it },
-                                    leadingIcon = {
-                                        Icon(
-                                            imageVector = Icons.Filled.Person,
-                                            contentDescription = stringResource(id = R.string.name_record),
-                                            modifier = Modifier.size(30.dp)
-                                        )
-                                    },
                                     label = { Text(stringResource(R.string.name_transaction)) },
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = colorResource(R.color.primary_green),
-                                        focusedLabelColor = colorResource(R.color.primary_green)
-                                    ),
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                                    leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
                                     modifier = Modifier.fillMaxWidth()
                                 )
                                 Spacer(modifier = Modifier.padding(16.dp))
 
-                                var expanded by remember { mutableStateOf(false) }
-                                var transactionStatus by remember { mutableStateOf("") }
-                                val listStatus = listOf(
-                                    stringResource(R.string.income),
-                                    stringResource(R.string.expenses)
-                                )
-
-                                ExposedDropdownMenuBox(
-                                    expanded = expanded,
-                                    onExpandedChange = { expanded = !expanded}
-                                ) {
+                                ExposedDropdownMenuBox(expanded = expandedStatus, onExpandedChange = { expandedStatus = !expandedStatus }) {
                                     OutlinedTextField(
                                         value = transactionStatus,
-                                        onValueChange = { transactionStatus = it },
+                                        onValueChange = {},
                                         readOnly = true,
-                                        leadingIcon = {
-                                            Icon(
-                                                imageVector = Icons.Filled.ImportExport,
-                                                contentDescription = stringResource(id = R.string.status_transaction),
-                                                modifier = Modifier.size(30.dp)
-                                            )
-                                        },
-                                        trailingIcon = {
-                                            Icon(
-                                                imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                                                contentDescription = null
-                                            )
-                                        },
                                         label = { Text(stringResource(R.string.status_transaction)) },
-                                        colors = OutlinedTextFieldDefaults.colors(
-                                            focusedBorderColor = colorResource(R.color.primary_green),
-                                            focusedLabelColor = colorResource(R.color.primary_green)
-                                        ),
-                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                                        modifier = Modifier.fillMaxWidth()
-                                            .menuAnchor()
+                                        leadingIcon = { Icon(Icons.Default.ImportExport, contentDescription = null) },
+                                        trailingIcon = { Icon(if (expandedStatus) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown, null) },
+                                        modifier = Modifier.fillMaxWidth().menuAnchor()
                                     )
-
-                                    ExposedDropdownMenu(
-                                        expanded = expanded,
-                                        onDismissRequest = { expanded = false }
-                                    ) {
+                                    ExposedDropdownMenu(expanded = expandedStatus, onDismissRequest = { expandedStatus = false }) {
                                         listStatus.forEach { selectionOption ->
-                                            DropdownMenuItem(
-                                                text = { Text(selectionOption) },
-                                                onClick = {
-                                                    transactionStatus = selectionOption
-                                                    expanded = false
-                                                }
-                                            )
+                                            DropdownMenuItem(text = { Text(selectionOption) }, onClick = {
+                                                transactionStatus = selectionOption
+                                                expandedStatus = false
+                                            })
                                         }
                                     }
                                 }
-
                                 Spacer(modifier = Modifier.padding(16.dp))
 
-                                var transactionAmount by remember { mutableStateOf("") }
+                                ExposedDropdownMenuBox(expanded = expandedCategory, onExpandedChange = { expandedCategory = !expandedCategory }) {
+                                    OutlinedTextField(
+                                        value = transactionCategory,
+                                        onValueChange = {},
+                                        readOnly = true,
+                                        label = { Text("Kategori") },
+                                        leadingIcon = { Icon(Icons.Default.Category, contentDescription = null) },
+                                        trailingIcon = { Icon(if (expandedCategory) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown, null) },
+                                        modifier = Modifier.fillMaxWidth().menuAnchor()
+                                    )
+                                    ExposedDropdownMenu(expanded = expandedCategory, onDismissRequest = { expandedCategory = false }) {
+                                        listCategory.forEach { selectionOption ->
+                                            DropdownMenuItem(text = { Text(selectionOption) }, onClick = {
+                                                transactionCategory = selectionOption
+                                                expandedCategory = false
+                                            })
+                                        }
+                                    }
+                                }
+                                Spacer(modifier = Modifier.padding(16.dp))
+
+                                ExposedDropdownMenuBox(expanded = expandedAccount, onExpandedChange = { expandedAccount = !expandedAccount }) {
+                                    OutlinedTextField(
+                                        value = transactionAccount,
+                                        onValueChange = {},
+                                        readOnly = true,
+                                        label = { Text("Akun") },
+                                        leadingIcon = { Icon(Icons.Default.AccountBalanceWallet, contentDescription = null) },
+                                        trailingIcon = { Icon(if (expandedAccount) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown, null) },
+                                        modifier = Modifier.fillMaxWidth().menuAnchor()
+                                    )
+                                    ExposedDropdownMenu(expanded = expandedAccount, onDismissRequest = { expandedAccount = false }) {
+                                        listAccount.forEach { selectionOption ->
+                                            DropdownMenuItem(text = { Text(selectionOption) }, onClick = {
+                                                transactionAccount = selectionOption
+                                                expandedAccount = false
+                                            })
+                                        }
+                                    }
+                                }
+                                Spacer(modifier = Modifier.padding(16.dp))
+
                                 OutlinedTextField(
                                     value = transactionAmount,
-                                    onValueChange = { transactionAmount = it },
-                                    leadingIcon = {
-                                        Icon(
-                                            imageVector = Icons.Filled.Person,
-                                            contentDescription = stringResource(id = R.string.amount_transaction),
-                                            modifier = Modifier.size(30.dp)
-                                        )
+                                    onValueChange = {
+                                        if (it.all { char -> char.isDigit() }) {
+                                            transactionAmount = it
+                                        }
                                     },
                                     label = { Text(stringResource(R.string.amount_transaction)) },
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = colorResource(R.color.primary_green),
-                                        focusedLabelColor = colorResource(R.color.primary_green)
-                                    ),
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                    leadingIcon = { Text("Rp", modifier = Modifier.padding(start = 12.dp), style = MaterialTheme.typography.bodyLarge) },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                     modifier = Modifier.fillMaxWidth()
                                 )
                                 Spacer(modifier = Modifier.padding(16.dp))
 
-                                DateInput()
+                                DateInput(datePickerState)
+                                Spacer(modifier = Modifier.padding(16.dp))
+
+                                Button(
+                                    onClick = {
+                                        val selectedDate = datePickerState.selectedDateMillis?.let { Date(it) } ?: Date()
+                                        val amountDouble = transactionAmount.toDoubleOrNull() ?: 0.0
+                                        val userId = viewModel.getCurrentUserId()
+
+                                        // PERBAIKAN KRUSIAL
+                                        val transactionToSave = if (isEditMode) {
+                                            // Jika mode edit, gunakan ID yang sudah ada
+                                            TransactionModel(
+                                                id = transactionId!!, // transactionId dari parameter (sudah String)
+                                                userId = userId,
+                                                title = transactionName,
+                                                amount = amountDouble,
+                                                transactionType = transactionStatus,
+                                                date = selectedDate,
+                                                category = transactionCategory,
+                                                account = transactionAccount
+                                            )
+                                        } else {
+                                            // Jika mode tambah, ID tidak perlu diisi.
+                                            // Firestore akan membuatnya secara otomatis.
+                                            TransactionModel(
+                                                userId = userId,
+                                                title = transactionName,
+                                                amount = amountDouble,
+                                                transactionType = transactionStatus,
+                                                date = selectedDate,
+                                                category = transactionCategory,
+                                                account = transactionAccount
+                                            )
+                                        }
+
+                                        if (isEditMode) {
+                                            viewModel.updateTransaction(transactionToSave)
+                                        } else {
+                                            viewModel.addTransaction(transactionToSave)
+                                        }
+                                    },
+                                    enabled = !state.addState.isLoading,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    if (state.addState.isLoading) {
+                                        CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                                    } else {
+                                        Text(if (isEditMode) "Simpan Perubahan" else "Simpan")
+                                    }
+                                }
                             }
                         }
                     }

@@ -1,226 +1,233 @@
 package com.example.hematin.presentation.ui.screens.insight
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.EaseInOutCubic
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.outlined.AccountBalanceWallet
-import androidx.compose.material.icons.outlined.BarChart
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.ThumbsUpDown
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
-import com.example.hematin.R
+import androidx.compose.material.icons.outlined.Category
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.hematin.R
 import com.example.hematin.presentation.ui.components.Icons.BackButtonIcon
-import com.example.hematin.presentation.ui.components.Icons.DownloadButtonIcon
-import com.example.hematin.presentation.ui.components.bottomNav.BottomNavigation
+import com.example.hematin.presentation.ui.navigation.Screen
+import com.example.hematin.presentation.ui.screens.transaction.StatisticData
+import com.example.hematin.presentation.ui.screens.transaction.TransactionViewModel
+import com.example.hematin.util.formatAmount
 import ir.ehsannarmani.compose_charts.LineChart
 import ir.ehsannarmani.compose_charts.models.AnimationMode
 import ir.ehsannarmani.compose_charts.models.DrawStyle
+import ir.ehsannarmani.compose_charts.models.LabelProperties
 import ir.ehsannarmani.compose_charts.models.Line
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StatisticScreen(navController: NavController) {
-    Surface(modifier = Modifier.fillMaxSize()) {
+fun StatisticScreen(
+    navController: NavController,
+    viewModel: TransactionViewModel = hiltViewModel()
+) {
+    val state by viewModel.state
+    val statisticState = state.statisticState
+    var selectedTabIndex by remember { mutableStateOf(0) }
+    val tabs = listOf("Pengeluaran", "Pemasukan")
+
+    Surface(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Scaffold(
             topBar = {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
-                            .background(Color.White)
-                            .height(100.dp)
-                            .padding(horizontal = 25.dp, vertical = 40.dp)) {
-                        BackButtonIcon()
-                        Text(
-                            text = stringResource(R.string.statistic),
-                            fontWeight = FontWeight.Bold
-                        )
-                        DownloadButtonIcon()
-                    }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 48.dp)
+                ) {
+                    BackButtonIcon(onClick = { navController.popBackStack() })
+                    Text(
+                        "Statistik",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.size(48.dp))
                 }
-                     },
-            content = { paddingValues ->
+            }
+        ) { paddingValues ->
+            if (state.listState.transactions.isEmpty() && !state.listState.isLoading) {
+                EmptyState(navController, paddingValues)
+            } else {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(PaddingValues(
-                            start = 25.dp,
-                            end = 25.dp,
-                            top = paddingValues.calculateTopPadding(),
-                            bottom = paddingValues.calculateBottomPadding()
-                        ))
+                        .padding(paddingValues)
+                        .padding(horizontal = 16.dp)
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.padding(vertical = 30.dp).fillMaxWidth()) {
-                        TextButton(
-                            onClick = {
-
-                            },
-                            colors = ButtonDefaults.textButtonColors(contentColor = Color.Gray)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.day),
-                                style = MaterialTheme.typography.bodySmall,
-                                fontSize = 14.sp
-                            )
-                        }
-                        TextButton(
-                            onClick = {
-
-                            },
-                            colors = ButtonDefaults.textButtonColors(contentColor = Color.Gray)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.week),
-                                style = MaterialTheme.typography.bodySmall,
-                                fontSize = 14.sp
-                            )
-                        }
-                        TextButton(
-                            onClick = {
-
-                            },
-                            colors = ButtonDefaults.textButtonColors(contentColor = Color.Gray)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.month),
-                                style = MaterialTheme.typography.bodySmall,
-                                fontSize = 14.sp
-                            )
-                        }
-                        TextButton(
-                            onClick = {
-
-                            },
-                            colors = ButtonDefaults.textButtonColors(contentColor = Color.Gray)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.year),
-                                style = MaterialTheme.typography.bodySmall,
-                                fontSize = 14.sp
+                    TabRow(selectedTabIndex = selectedTabIndex) {
+                        tabs.forEachIndexed { index, title ->
+                            Tab(
+                                selected = selectedTabIndex == index,
+                                onClick = { selectedTabIndex = index },
+                                text = { Text(title) }
                             )
                         }
                     }
 
-                    val expenseLabel = stringResource(R.string.expenses)
-                    val chartColor = colorResource(R.color.secondary_lighter_green)
-                    LineChart(
-                        modifier = Modifier.fillMaxWidth().height(180.dp).padding(horizontal = 22.dp),
-                        data = remember {
-                            listOf(
-                                Line(
-                                    label = expenseLabel,
-                                    values = listOf(42.5, 456.2, 45.1, 3.8),
-                                    color = SolidColor(chartColor),
-                                    firstGradientFillColor = Color(0xFF2BC0A1).copy(alpha = .5f),
-                                    secondGradientFillColor = Color.Transparent,
-                                    strokeAnimationSpec = tween(2000, easing = EaseInOutCubic),
-                                    gradientAnimationDelay = 1000,
-                                    drawStyle = DrawStyle.Stroke(width = 2.dp),
-                                )
-                            )
-                        },
-                        animationMode = AnimationMode.Together(delayBuilder = {
-                            it * 500L
-                        }),
-                    )
-                    Spacer(modifier = Modifier.padding(vertical = 24.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween ,modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            text = stringResource(R.string.top_spending),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp
-                        )
-                        IconButton(
-                            onClick = {
-
-                            },
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.ThumbsUpDown,
-                                contentDescription = null,
-                                tint = Color.Gray,
-                                modifier = Modifier.size(35.dp)
-                            )
-                        }
-                    }
-
-                    LazyColumn {
-                        items(5) {
-                                index ->
-                            Row(horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(vertical = 8.dp)
-                                    .clip(RoundedCornerShape(14.dp))
-                                    .height(80.dp)
-                                    .background(colorResource(R.color.secondary_lightest_green))) {
-                                Column {
-                                    Text(
-                                        text = stringResource(R.string.name_record),
-                                        style = MaterialTheme.typography.titleLarge,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 14.sp
-                                    )
-                                    Text(
-                                        text = stringResource(R.string.date),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        fontSize = 12.sp
-                                    )
-                                }
-                                Text(
-                                    text = stringResource(R.string.value_expense),
-                                    color = Color.Red,
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp
-                                )
-                            }
+                    Crossfade(targetState = selectedTabIndex) { tabIndex ->
+                        when (tabIndex) {
+                            0 -> StatisticContent(statisticData = statisticState.expenseStats, type = "Pengeluaran")
+                            1 -> StatisticContent(statisticData = statisticState.incomeStats, type = "Pemasukan")
                         }
                     }
                 }
-            },
-            bottomBar = {
-                BottomNavigation(navController = navController)
             }
+        }
+    }
+}
+
+@Composable
+fun StatisticContent(statisticData: StatisticData, type: String) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = 16.dp)
+    ) {
+        item {
+            Text(
+                "$type 7 Hari Terakhir",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            val chartColor = if (type == "Pengeluaran") Color.Red else MaterialTheme.colorScheme.primary
+            LineChart(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(220.dp),
+                data = remember(statisticData.chartData) {
+                    listOf(
+                        Line(
+                            label = type,
+                            values = statisticData.chartData.map { it.value.toDouble() },
+                            color = SolidColor(chartColor),
+                            firstGradientFillColor = chartColor.copy(alpha = .4f),
+                            secondGradientFillColor = Color.Transparent,
+                            strokeAnimationSpec = tween(2000, easing = EaseInOutCubic),
+                            gradientAnimationDelay = 1000,
+                            drawStyle = DrawStyle.Stroke(width = 3.dp),
+                        )
+                    )
+                },
+                labelProperties = LabelProperties(
+                    enabled = true,
+                    labels = statisticData.chartData.map { it.label }
+                ),
+                animationMode = AnimationMode.Together(delayBuilder = { it * 100L }),
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                "Kategori $type Teratas",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        if (statisticData.topCategories.isNotEmpty()) {
+            items(statisticData.topCategories) { category ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Category,
+                        contentDescription = "Kategori",
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.secondaryContainer)
+                            .padding(8.dp),
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = category.category,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Text(
+                        text = "Rp ${formatAmount(category.amount)}",
+                        color = if (type == "Pengeluaran") Color.Red else MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+            }
+        } else {
+            item {
+                Text(
+                    "Belum ada data $type.",
+                    modifier = Modifier.padding(vertical = 16.dp),
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmptyState(navController: NavController, paddingValues: PaddingValues) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+            .padding(32.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            "Belum Ada Riwayat Transaksi",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold
         )
+        Text(
+            "Mulai catat transaksimu untuk melihat analisis keuangan di sini.",
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Button(onClick = { navController.navigate(Screen.AddTransactionScreen.route + "?transactionId=-1") }) {
+            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Tambah Transaksi Pertama")
+        }
     }
 }

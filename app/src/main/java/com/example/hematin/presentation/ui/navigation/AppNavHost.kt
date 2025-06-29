@@ -1,54 +1,55 @@
 package com.example.hematin.presentation.ui.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavHost
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import androidx.navigation.compose.rememberNavController
-import com.example.hematin.presentation.ui.screens.home.HomeScreen
-import com.example.hematin.presentation.ui.screens.insight.StatisticScreen
-import com.example.hematin.presentation.ui.screens.login.LoginScreen
+import com.example.hematin.presentation.ui.screens.auth.AuthState
+import com.example.hematin.presentation.ui.screens.auth.AuthViewModel
+import com.example.hematin.presentation.ui.screens.main.MainScreen
 import com.example.hematin.presentation.ui.screens.onboarding.OnboardingScreen
-import com.example.hematin.presentation.ui.screens.profile.ProfileScreen
-import com.example.hematin.presentation.ui.screens.resetpw.ResetPasswordScreen
-import com.example.hematin.presentation.ui.screens.signup.SignupScreen
-import com.example.hematin.presentation.ui.screens.transaction.AddTransactionScreen
-import com.example.hematin.presentation.ui.screens.transaction.TransactionDetailScreen
-import com.example.hematin.presentation.ui.screens.transaction.TransactionListScreen
+import com.example.hematin.presentation.ui.screens.onboarding.OnboardingViewModel
 
 @Composable
 fun AppNavHost() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = Screen.onboardingScreen, builder = {
-      composable (Screen.onboardingScreen) {
-          OnboardingScreen(navController)
-      }
-        composable (Screen.loginScreen) {
-            LoginScreen(navController)
+    val onboardingViewModel: OnboardingViewModel = hiltViewModel()
+    val authViewModel: AuthViewModel = hiltViewModel()
+
+    val hasCompletedOnboarding by onboardingViewModel.onboardingCompleted.collectAsState()
+    val authState by authViewModel.authState.observeAsState()
+
+    val startDestination = when {
+        !hasCompletedOnboarding -> "onboarding_graph"
+        authState is AuthState.Authenticated -> "main_graph"
+        else -> "auth_graph"
+    }
+
+    NavHost(navController = navController, startDestination = startDestination) {
+        composable(route = "onboarding_graph") {
+            OnboardingScreen(onFinish = {
+                navController.navigate("auth_graph") {
+                    popUpTo("onboarding_graph") { inclusive = true }
+                }
+            })
         }
-        composable (Screen.signupScreen) {
-            SignupScreen(navController)
+
+        authNavGraph(navController)
+
+        composable(route = "main_graph") {
+            MainScreen(
+                onLogout = {
+                    navController.navigate("auth_graph") {
+                        popUpTo("main_graph") { inclusive = true }
+                    }
+                }
+            )
         }
-        composable (Screen.homeScreen) {
-            HomeScreen(navController)
-        }
-        composable (Screen.resetPasswordScreen) {
-            ResetPasswordScreen(navController)
-        }
-        composable (Screen.statisticScreen) {
-            StatisticScreen(navController)
-        }
-        composable (Screen.addTransactionScreen) {
-            AddTransactionScreen(navController)
-        }
-        composable (Screen.transactionDetailScreen) {
-            TransactionDetailScreen(navController)
-        }
-        composable (Screen.transactionListScreen) {
-            TransactionListScreen(navController)
-        }
-        composable (Screen.profileScreen) {
-            ProfileScreen(navController)
-        }
-    })
+    }
 }

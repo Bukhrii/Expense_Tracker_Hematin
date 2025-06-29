@@ -50,7 +50,7 @@ fun OnboardingGraphic(onboardingModel: OnboardingModel) {
             fontSize = 19.sp,
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.primary
         )
 
         Spacer(
@@ -67,7 +67,7 @@ fun OnboardingGraphic(onboardingModel: OnboardingModel) {
             fontSize = 16.sp,
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         Spacer(

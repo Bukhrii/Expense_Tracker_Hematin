@@ -6,7 +6,6 @@
     <style name="Theme.MySplashScreen" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/primary_green</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/logo_app_hematin</item>
-        <item name="windowSplashScreenAnimationDuration">2000</item>
         <item name="postSplashScreenTheme">@style/Theme.Hematin</item>
     </style>
 </resources>

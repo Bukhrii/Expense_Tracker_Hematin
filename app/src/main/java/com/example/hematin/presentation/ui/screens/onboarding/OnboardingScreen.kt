@@ -1,5 +1,6 @@
 package com.example.hematin.presentation.ui.screens.onboarding
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -19,14 +22,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.hematin.R
 import com.example.hematin.domain.models.OnboardingModel
 import com.example.hematin.presentation.ui.navigation.Screen
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun OnboardingScreen(navController: NavController) {
+fun OnboardingScreen(
+    viewModel: OnboardingViewModel = hiltViewModel(),
+    onFinish: () -> Unit,
+) {
 
     val pages = listOf(OnboardingModel.FirstPages, OnboardingModel.SecondPages, OnboardingModel.ThirdPages)
     val pagerState = rememberPagerState(initialPage = 0) { pages.size }
@@ -45,7 +53,7 @@ fun OnboardingScreen(navController: NavController) {
 
     Scaffold(
         content = {
-            Column(Modifier.padding(it)) {
+            Column(Modifier.padding(it).verticalScroll(rememberScrollState())) {
                 HorizontalPager(state = pagerState) { index ->
                     OnboardingGraphic(onboardingModel = pages[index])
                 }
@@ -67,7 +75,7 @@ fun OnboardingScreen(navController: NavController) {
                     ButtonOnboarding(
                         text = buttonState.value[0],
                         backgroundColor = Color.Transparent,
-                        textColor = colorResource(R.color.secondary_light_green)
+                        textColor = MaterialTheme.colorScheme.secondary
                         ) {
                         scope.launch {
                             if(pagerState.currentPage > 0) {
@@ -93,14 +101,15 @@ fun OnboardingScreen(navController: NavController) {
                 ) {
                     ButtonOnboarding(
                         text = buttonState.value[1],
-                        backgroundColor = colorResource(R.color.primary_green),
+                        backgroundColor = MaterialTheme.colorScheme.primary,
                         textColor = MaterialTheme.colorScheme.onPrimary
                     ) {
                         scope.launch {
                             if(pagerState.currentPage < pages.size - 1) {
                                 pagerState.animateScrollToPage(pagerState.currentPage + 1)
                             } else {
-                                navController.navigate(Screen.loginScreen)
+                                viewModel.onFinishOnboarding()
+                                onFinish()
                             }
                         }
                     }
@@ -108,5 +117,4 @@ fun OnboardingScreen(navController: NavController) {
             }
         }
     )
-
 }

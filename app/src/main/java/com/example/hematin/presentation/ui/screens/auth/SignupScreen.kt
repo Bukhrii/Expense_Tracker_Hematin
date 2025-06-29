@@ -1,5 +1,6 @@
-package com.example.hematin.presentation.ui.screens.signup
+package com.example.hematin.presentation.ui.screens.auth
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,8 +15,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Email
@@ -25,6 +28,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -41,36 +46,59 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.example.hematin.R
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.hematin.presentation.ui.navigation.Screen
 
 @Composable
-fun SignupScreen(navController: NavController) {
+fun SignupScreen(
+    authViewModel: AuthViewModel = hiltViewModel(),
+    onSignUpSuccessToLogin: () -> Unit,
+    onNavigateToLogin: () -> Unit
+
+) {
+
+    var textEmail by remember { mutableStateOf("") }
+    var textPassword by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var textPasswordConfirm by remember { mutableStateOf("") }
+    var passwordConfirmVisible by remember { mutableStateOf(false) }
+    var textUsername by remember { mutableStateOf("") }
+    var textPhoneNumber by remember { mutableStateOf("") }
+
+    val authState by authViewModel.authState.observeAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(authState) {
+        when (val state = authState) {
+            is AuthState.RegistrationSuccess -> {
+                // --- TAMBAHKAN TOAST DI SINI ---
+                Toast.makeText(context, "Registrasi berhasil! Silakan login.", Toast.LENGTH_LONG).show()
+                // Panggil lambda untuk navigasi
+                onSignUpSuccessToLogin()
+            }
+            is AuthState.Error -> {
+                Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+            }
+            else -> Unit
+        }
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState())
     ) {
-        TextButton(
-            onClick = {
-                navController.navigate(Screen.homeScreen)
-            },
-            modifier = Modifier.align(Alignment.End)
-        ) {
-            Text(
-                text = stringResource(R.string.skip),
-                fontSize = 16.sp,
-                color = Color.Gray
-            )
-        }
         Column(horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.padding(horizontal = 30.dp)
@@ -90,12 +118,11 @@ fun SignupScreen(navController: NavController) {
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.primary
             )
 
             Spacer(modifier = Modifier.padding(10.dp))
 
-            var textUsername by remember { mutableStateOf("") }
             OutlinedTextField(
                 value = textUsername,
                 onValueChange = { textUsername = it },
@@ -108,14 +135,13 @@ fun SignupScreen(navController: NavController) {
                 },
                 label = { Text(stringResource(R.string.username)) },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = colorResource(R.color.primary_green),
-                    focusedLabelColor = colorResource(R.color.primary_green)
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 modifier = Modifier.fillMaxWidth()
             )
 
-            var textPhoneNumber by remember { mutableStateOf("") }
             OutlinedTextField(
                 value = textPhoneNumber,
                 onValueChange = { textPhoneNumber = it },
@@ -128,14 +154,13 @@ fun SignupScreen(navController: NavController) {
                 },
                 label = { Text(stringResource(R.string.phone_number)) },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = colorResource(R.color.primary_green),
-                    focusedLabelColor = colorResource(R.color.primary_green)
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                 modifier = Modifier.fillMaxWidth()
             )
 
-            var textEmail by remember { mutableStateOf("") }
             OutlinedTextField(
                 value = textEmail,
                 onValueChange = { textEmail = it },
@@ -148,15 +173,13 @@ fun SignupScreen(navController: NavController) {
                 },
                 label = { Text(stringResource(R.string.email)) },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = colorResource(R.color.primary_green),
-                    focusedLabelColor = colorResource(R.color.primary_green)
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier.fillMaxWidth()
             )
 
-            var textPassword by remember { mutableStateOf("") }
-            var passwordVisible by remember { mutableStateOf(false) }
             OutlinedTextField(
                 value = textPassword,
                 onValueChange = { textPassword = it },
@@ -169,8 +192,8 @@ fun SignupScreen(navController: NavController) {
                 },
                 label = { Text(stringResource(R.string.password)) },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = colorResource(R.color.primary_green),
-                    focusedLabelColor = colorResource(R.color.primary_green)
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -187,8 +210,6 @@ fun SignupScreen(navController: NavController) {
                 modifier = Modifier.fillMaxWidth()
             )
 
-            var textPasswordConfirm by remember { mutableStateOf("") }
-            var passwordConfirmVisible by remember { mutableStateOf(false) }
             OutlinedTextField(
                 value = textPasswordConfirm,
                 onValueChange = { textPasswordConfirm = it },
@@ -201,8 +222,8 @@ fun SignupScreen(navController: NavController) {
                 },
                 label = { Text(stringResource(R.string.password_confirm)) },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = colorResource(R.color.primary_green),
-                    focusedLabelColor = colorResource(R.color.primary_green)
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = if (passwordConfirmVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -223,17 +244,35 @@ fun SignupScreen(navController: NavController) {
 
             Button(
                 onClick = {
-                    navController.navigate(Screen.loginScreen)
+                    authViewModel.signup(
+                        username = textUsername,
+                        phoneNumber = textPhoneNumber,
+                        email = textEmail,
+                        password = textPassword,
+                        confirmPassword = textPasswordConfirm
+                    )
                 },
+                // --- TAMBAHKAN BARIS INI ---
+                // Tombol akan non-aktif jika state adalah Loading
+                enabled = authState !is AuthState.Loading,
+                // -----------------------------
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(R.color.primary_green)
+                    containerColor = MaterialTheme.colorScheme.primary
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
             ) {
-                Text(text = stringResource(R.string.sign_up))
+                if (authState is AuthState.Loading) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(text = stringResource(R.string.sign_up))
+                }
             }
 
             Spacer(modifier = Modifier.padding(10.dp))
@@ -247,12 +286,12 @@ fun SignupScreen(navController: NavController) {
                 )
                 TextButton(
                     onClick = {
-                        navController.navigate(Screen.loginScreen)
+                        onNavigateToLogin()
                     }
                 ) {
                     Text(
                         text = stringResource(R.string.sign_in),
-                        color = colorResource(R.color.primary_dark_green),
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 14.sp
                     )
                 }

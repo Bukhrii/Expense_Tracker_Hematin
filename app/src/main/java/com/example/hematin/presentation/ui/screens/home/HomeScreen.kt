@@ -20,9 +20,11 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items // Pastikan import ini ada
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowCircleDown
+import androidx.compose.material.icons.filled.ArrowCircleUp
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -30,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -37,13 +40,31 @@ import androidx.compose.ui.unit.sp
 import com.example.hematin.R
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.colorResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.hematin.presentation.ui.components.Icons.MoreButtonIcon
+import com.example.hematin.domain.models.TransactionModel
 import com.example.hematin.presentation.ui.components.Icons.NotificationButtonIcon
 import com.example.hematin.presentation.ui.components.bottomNav.BottomNavigation
+import com.example.hematin.presentation.ui.navigation.Screen
+import com.example.hematin.presentation.ui.screens.profile.ProfileViewModel
+import com.example.hematin.presentation.ui.screens.transaction.TransactionViewModel
+import com.example.hematin.util.formatAmount
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(
+    navController: NavController,
+    transactionViewModel: TransactionViewModel = hiltViewModel(),
+    profileViewModel: ProfileViewModel = hiltViewModel()
+) {
+    val transactionListState = transactionViewModel.state.value.listState
+    val profileState = profileViewModel.state.value
+
+    val totalBalance = transactionListState.transactions.sumOf { if (it.transactionType == "Pemasukan") it.amount else -it.amount }
+    val totalIncome = transactionListState.transactions.filter { it.transactionType == "Pemasukan" }.sumOf { it.amount }
+    val totalExpense = transactionListState.transactions.filter { it.transactionType == "Pengeluaran" }.sumOf { it.amount }
+
     Surface(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             topBar = {
@@ -66,8 +87,9 @@ fun HomeScreen(navController: NavController) {
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onPrimary
                                 )
+                                // PERBAIKAN: Akses nama dari 'profileState'
                                 Text(
-                                    stringResource(R.string.user),
+                                    text = profileState.user?.username ?: "User",
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onPrimary
@@ -83,7 +105,7 @@ fun HomeScreen(navController: NavController) {
                                 defaultElevation = 20.dp
                             ),
                             colors = CardDefaults.elevatedCardColors(
-                                containerColor = colorResource(R.color.primary_green)
+                                containerColor = MaterialTheme.colorScheme.primary
                             ),
                             shape = RoundedCornerShape(20.dp),
                             modifier = Modifier
@@ -100,19 +122,11 @@ fun HomeScreen(navController: NavController) {
                                             style = MaterialTheme.typography.titleMedium,
                                             color = MaterialTheme.colorScheme.onPrimary
                                         )
-
-                                        Icon(
-                                            imageVector = Icons.Filled.KeyboardArrowUp,
-                                            contentDescription = null,
-                                            tint = colorResource(R.color.white),
-                                            modifier = Modifier.size(30.dp)
-                                        )
                                     }
-                                    MoreButtonIcon()
                                 }
 
                                 Text(
-                                    text = stringResource(R.string.total_balance_value),
+                                    text = "Rp ${formatAmount(totalBalance)}",
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onPrimary,
@@ -141,7 +155,7 @@ fun HomeScreen(navController: NavController) {
 
 
                                         Text(
-                                            text = stringResource(R.string.total_balance_value),
+                                            text = "Rp ${formatAmount(totalIncome)}",
                                             style = MaterialTheme.typography.titleLarge,
                                             fontWeight = FontWeight.Bold,
                                             color = MaterialTheme.colorScheme.onPrimary,
@@ -152,7 +166,7 @@ fun HomeScreen(navController: NavController) {
                                     Column {
                                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier) {
                                             Icon(
-                                                imageVector = Icons.Filled.ArrowCircleDown,
+                                                imageVector = Icons.Filled.ArrowCircleUp,
                                                 contentDescription = null,
                                                 tint = colorResource(R.color.white),
                                                 modifier = Modifier.size(30.dp)
@@ -168,7 +182,7 @@ fun HomeScreen(navController: NavController) {
 
 
                                         Text(
-                                            text = stringResource(R.string.total_balance_value),
+                                            text = "Rp ${formatAmount(totalExpense)}",
                                             style = MaterialTheme.typography.titleLarge,
                                             fontWeight = FontWeight.Bold,
                                             color = MaterialTheme.colorScheme.onPrimary,
@@ -204,7 +218,7 @@ fun HomeScreen(navController: NavController) {
                             )
                             TextButton(
                                 onClick = {
-
+                                    navController.navigate(Screen.TransactionListScreen.route)
                                 },
                                 colors = ButtonDefaults.textButtonColors(contentColor = Color.Gray)
                             ) {
@@ -217,27 +231,31 @@ fun HomeScreen(navController: NavController) {
                         }
 
                         LazyColumn {
-                            items(10) {
-                                index ->
+                            items(transactionListState.transactions.take(5)) { transaction ->
+                                val sdf = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
+                                val dateString = sdf.format(transaction.date)
                                 Row(horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp)) {
                                     Column {
                                         Text(
-                                            text = stringResource(R.string.name_record),
+                                            text = transaction.title,
                                             style = MaterialTheme.typography.titleLarge,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 16.sp
                                         )
                                         Text(
-                                            text = stringResource(R.string.date),
+                                            text = "${transaction.category} • $dateString",
                                             style = MaterialTheme.typography.bodyMedium,
+                                            color = Color.Gray,
                                             fontSize = 14.sp
                                         )
                                     }
                                     Text(
-                                        text = stringResource(R.string.value_income),
-                                        color = colorResource(R.color.primary_green),
+                                        text = "Rp ${formatAmount(transaction.amount)}",
+                                        color = if (transaction.transactionType == "Pemasukan") MaterialTheme.colorScheme.primary else Color.Red,
                                         style = MaterialTheme.typography.titleLarge,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 18.sp
