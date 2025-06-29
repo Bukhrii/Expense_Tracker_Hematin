@@ -27,7 +27,6 @@ class TransactionRepositoryImpl @Inject constructor(
     private var firestoreListener: ListenerRegistration? = null
 
     override fun startSync() {
-        // Hentikan listener lama jika ada untuk mencegah kebocoran
         stopSync()
         auth.currentUser?.uid?.let { userId ->
             firestoreListener = firestore.collection("users").document(userId)
@@ -40,7 +39,6 @@ class TransactionRepositoryImpl @Inject constructor(
                     CoroutineScope(Dispatchers.IO).launch {
                         val firestoreTransactions = snapshots?.toObjects(TransactionModel::class.java) ?: emptyList()
                         transactionDao.deleteAllByUserId(userId)
-                        // Gunakan loop karena DAO Anda tidak punya insertAll
                         firestoreTransactions.forEach {
                             transactionDao.insert(it.toEntity())
                         }
@@ -59,11 +57,9 @@ class TransactionRepositoryImpl @Inject constructor(
             val userId = auth.currentUser?.uid ?: return Resource.Error("Pengguna belum login.")
             val transactionWithUser = transaction.copy(userId = userId)
 
-            // Simpan ke Firestore
             firestore.collection("users").document(userId)
                 .collection("transactions").add(transactionWithUser).await()
 
-            // Room akan terupdate otomatis oleh listener
             Resource.Success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -73,7 +69,6 @@ class TransactionRepositoryImpl @Inject constructor(
 
     override fun getTransactions(): Flow<List<TransactionModel>> {
         val userId = auth.currentUser?.uid ?: return kotlinx.coroutines.flow.flowOf(emptyList())
-        // Selalu ambil data dari Room yang sudah tersinkronisasi
         return transactionDao.getAllByUserId(userId).map { transactions ->
             transactions.map { it.toDomain() }
         }
@@ -82,13 +77,14 @@ class TransactionRepositoryImpl @Inject constructor(
     override suspend fun updateTransaction(transaction: TransactionModel): Resource<Unit> {
         return try {
             val userId = auth.currentUser?.uid ?: return Resource.Error("Pengguna belum login.")
-            val firestoreDoc = firestore.collection("users").document(userId)
-                .collection("transactions").whereEqualTo("id", transaction.id).get().await().documents.firstOrNull()
+            firestore.collection("users").document(userId)
+                .collection("transactions").document(transaction.id)
+                .set(transaction)
+                .await()
 
-            firestoreDoc?.reference?.set(transaction)?.await()
-            // Room akan terupdate otomatis oleh listener
             Resource.Success(Unit)
         } catch (e: Exception) {
+            e.printStackTrace()
             Resource.Error(e.message ?: "Gagal memperbarui transaksi.")
         }
     }
@@ -96,7 +92,6 @@ class TransactionRepositoryImpl @Inject constructor(
     override suspend fun deleteTransaction(transaction: TransactionModel): Resource<Unit> {
         return try {
             val userId = auth.currentUser?.uid ?: return Resource.Error("Pengguna belum login.")
-            // PERBAIKAN: Langsung hapus dokumen berdasarkan ID-nya, jangan query.
             firestore.collection("users").document(userId)
                 .collection("transactions").document(transaction.id)
                 .delete().await()
@@ -106,7 +101,6 @@ class TransactionRepositoryImpl @Inject constructor(
         }
     }
 
-    // PERBAIKAN: Ubah parameter ID menjadi String
     override fun getTransactionById(id: String): Flow<TransactionModel?> {
         return transactionDao.getById(id).map { it?.toDomain() }
     }

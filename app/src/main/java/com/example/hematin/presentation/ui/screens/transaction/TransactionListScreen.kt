@@ -13,17 +13,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -35,11 +34,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.hematin.R
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.layout.ContentScale
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.hematin.presentation.ui.components.Icons.BackButtonIconOnprimary
-import com.example.hematin.presentation.ui.components.Icons.NotificationButtonIcon
 import com.example.hematin.presentation.ui.components.bottomNav.BottomNavigation
 import com.example.hematin.presentation.ui.navigation.Screen
 import com.example.hematin.util.formatAmount
@@ -59,64 +57,56 @@ fun TransactionListScreen(
     Surface(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Scaffold(
             bottomBar = {
-                Box(contentAlignment = Alignment.Center,modifier = Modifier.fillMaxWidth()) {
-                    BottomNavigation(navController = navController)
-                }
+                BottomNavigation(navController = navController)
             }
         ) { paddingValues ->
-            Box(
+            LazyColumn(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(paddingValues),
-
+                    .fillMaxSize()
+                    .padding(bottom = paddingValues.calculateBottomPadding())
             ) {
-                Image(painter = painterResource(R.drawable.ic_topbar), contentDescription = null, modifier = Modifier.fillMaxWidth())
+                item {
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        Image(
+                            painter = painterResource(R.drawable.ic_topbar),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxWidth(),
+                            contentScale = ContentScale.FillWidth
+                        )
+                        Column(modifier = Modifier.padding(top = 80.dp, start = 25.dp, end = 25.dp, bottom = 30.dp)) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                BackButtonIconOnprimary(onClick = { navController.popBackStack() })
 
-                Column(
-                    modifier = Modifier.padding(
-                        top = 80.dp,
-                    )
-                ) {
-                    Column(modifier = Modifier.padding(horizontal = 25.dp)) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                        ) {
-                            BackButtonIconOnprimary(onClick = { navController.popBackStack() })
-                            Text(
-                                text = stringResource(R.string.transaction_list),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                            NotificationButtonIcon()
+                                Spacer(modifier = Modifier.padding(25.dp))
+                                Text(
+                                    text = stringResource(R.string.transaction_list),
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                )
+                            }
                         }
                     }
+                }
 
-
-                    Spacer(modifier = Modifier.padding(vertical = 14.dp))
-
-                    ElevatedCard(
-                        elevation = CardDefaults.cardElevation(
-                            defaultElevation = 20.dp
-                        ),
-                        colors = CardDefaults.elevatedCardColors(
-                            containerColor = MaterialTheme.colorScheme.background
-                        ),
-                        shape = RoundedCornerShape(36.dp),
+                item {
+                    Card(
+                        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.background),
+                        shape = RoundedCornerShape(topStart = 36.dp, topEnd = 36.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .fillMaxHeight()
-                            .offset(y = 20.dp)
+                            .offset(y = (-130).dp)
                     ) {
                         Column(
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(40.dp)) {
+                                .padding(40.dp)
+                        ) {
                             Text(
                                 text = stringResource(R.string.total_balance),
                                 style = MaterialTheme.typography.bodyMedium,
@@ -136,48 +126,51 @@ fun TransactionListScreen(
                             if (listState.isLoading) {
                                 CircularProgressIndicator()
                             }
+                        }
+                    }
+                }
 
-                            LazyColumn {
-                                items(listState.transactions) {transaction ->
-                                    val sdf = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
-                                    val dateString = sdf.format(transaction.date)
-                                    Row(horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
-                                        Column(modifier = Modifier.weight(1f)) {
-                                            Text(
-                                                text = transaction.title,
-                                                style = MaterialTheme.typography.titleMedium,
-                                                fontWeight = FontWeight.Bold,
-                                                color = MaterialTheme.colorScheme.onBackground,
-                                                fontSize = 16.sp
-                                            )
-                                            Text(
-                                                text = "${transaction.category} • $dateString",
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                color = MaterialTheme.colorScheme.onBackground,
-                                                fontSize = 14.sp
-                                            )
-                                        }
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text(
-                                            text = "Rp. ${formatAmount(transaction.amount)}",
-                                            color = if (transaction.transactionType == "Pemasukan") MaterialTheme.colorScheme.primary else Color.Red,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            fontSize = 14.sp
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        OutlinedButton(
-                                            onClick = {
-                                                navController.navigate(Screen.TransactionDetailScreen.route + "/${transaction.id}")
-                                            },
-                                            modifier = Modifier.width(90.dp)
-                                        ) {
-                                            Text(text = stringResource(R.string.detail), fontSize = 14.sp)
-                                        }
-                                    }
-                                }
-                            }
+                items(listState.transactions) { transaction ->
+                    val sdf = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
+                    val dateString = sdf.format(transaction.date)
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 40.dp, vertical = 12.dp)
+                            .offset(y = (-120).dp)
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = transaction.title,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                fontSize = 16.sp
+                            )
+                            Text(
+                                text = "${transaction.category} • $dateString",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                fontSize = 14.sp
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Rp. ${formatAmount(transaction.amount)}",
+                            color = if (transaction.transactionType == "Pemasukan") MaterialTheme.colorScheme.primary else Color.Red,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontSize = 14.sp
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        OutlinedButton(
+                            onClick = {
+                                navController.navigate(Screen.TransactionDetailScreen.route + "/${transaction.id}")
+                            },
+                            modifier = Modifier.width(90.dp)
+                        ) {
+                            Text(text = stringResource(R.string.detail), fontSize = 14.sp)
                         }
                     }
                 }

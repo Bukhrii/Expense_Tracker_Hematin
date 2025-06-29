@@ -37,7 +37,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -48,14 +47,11 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import com.example.hematin.presentation.ui.navigation.Screen
 
 @Composable
 fun LoginScreen(
@@ -74,9 +70,7 @@ fun LoginScreen(
     LaunchedEffect(authState) {
         when (val state = authState) {
             is AuthState.Authenticated -> {
-                // --- TAMBAHKAN TOAST DI SINI ---
                 Toast.makeText(context, "Login berhasil!", Toast.LENGTH_SHORT).show()
-                // Panggil lambda untuk navigasi
                 onLoginSuccess()
             }
             is AuthState.Error -> {
@@ -90,17 +84,14 @@ fun LoginScreen(
         modifier = Modifier.fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
+            .padding(30.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(horizontal = 30.dp)
-        ) {
-
             Image(
                 painter = painterResource(R.drawable.login),
                 contentDescription = stringResource(R.string.sign_in),
                 modifier = Modifier.size(250.dp)
-
             )
 
             Text(
@@ -167,18 +158,7 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            TextButton(
-                onClick = {
-                    onNavigateToSignUp()
-                },
-                modifier = Modifier.align(Alignment.End)
-            ) {
-                Text(
-                    text = stringResource(R.string.forgot_password),
-                    fontSize = 12.sp,
-                    color = Color.Gray,
-                )
-            }
+            Spacer(modifier = Modifier.padding(14.dp))
 
             Button(
                 onClick = {
@@ -206,62 +186,6 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.padding(14.dp))
 
-            Text(
-                text = stringResource(R.string.continue_text),
-                fontSize = 14.sp,
-                color = Color.Gray,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-
-            Spacer(modifier = Modifier.padding(4.dp))
-
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Button(onClick = {
-
-                }, shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier
-                        .weight(0.3f)
-                        .height(48.dp))
-                {
-                    Icon(
-                        painter = painterResource(R.drawable.google_icon),
-                        contentDescription = stringResource(id = R.string.continue_google),
-                        tint = Color.Unspecified,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.padding(4.dp))
-                    Text(text = stringResource(R.string.continue_google))
-                }
-
-                Spacer(modifier = Modifier.padding(8.dp))
-
-                Button(onClick = {
-
-                },
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier
-                        .weight(0.3f)
-                        .height(48.dp))
-                {
-                    Icon(
-                        painter = painterResource(R.drawable.facebook_icon),
-                        contentDescription = stringResource(id = R.string.continue_facebook),
-                        tint = Color.Unspecified,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.padding(4.dp))
-                    Text(text = stringResource(R.string.continue_facebook))
-                }
-            }
-
-            Spacer(modifier = Modifier.padding(4.dp))
-
             Row(horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()) {
@@ -282,6 +206,4 @@ fun LoginScreen(
                 }
             }
         }
-
-    }
 }

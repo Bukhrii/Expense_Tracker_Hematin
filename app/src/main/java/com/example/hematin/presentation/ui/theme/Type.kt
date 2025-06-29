@@ -49,7 +49,7 @@ val AppTypography = Typography(
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
     ),
-    // Teks yang lebih kecil, untuk deskripsi atau detail
+
     bodyMedium = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
@@ -57,7 +57,7 @@ val AppTypography = Typography(
         lineHeight = 20.sp,
         letterSpacing = 0.25.sp
     ),
-    // Teks untuk label tombol
+
     labelLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,

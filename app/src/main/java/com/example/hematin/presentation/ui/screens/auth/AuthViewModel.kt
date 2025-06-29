@@ -12,12 +12,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// 1. Tambahkan state baru untuk keberhasilan registrasi
 sealed class AuthState {
     data object Authenticated : AuthState()
     data object Unauthenticated : AuthState()
     data object Loading : AuthState()
-    data object RegistrationSuccess : AuthState() // State baru
+    data object RegistrationSuccess : AuthState()
     data class Error(val message: String) : AuthState()
 }
 
@@ -85,7 +84,6 @@ class AuthViewModel @Inject constructor(
                     viewModelScope.launch {
                         when (userRepository.createUser(newUser)) {
                             is Resource.Success -> {
-                                // 3. Set state menjadi RegistrationSuccess, bukan Authenticated
                                 _authState.value = AuthState.RegistrationSuccess
                             }
                             is Resource.Error -> {

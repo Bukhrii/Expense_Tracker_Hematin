@@ -39,7 +39,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -50,14 +49,11 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import com.example.hematin.presentation.ui.navigation.Screen
 
 @Composable
 fun SignupScreen(
@@ -81,9 +77,7 @@ fun SignupScreen(
     LaunchedEffect(authState) {
         when (val state = authState) {
             is AuthState.RegistrationSuccess -> {
-                // --- TAMBAHKAN TOAST DI SINI ---
                 Toast.makeText(context, "Registrasi berhasil! Silakan login.", Toast.LENGTH_LONG).show()
-                // Panggil lambda untuk navigasi
                 onSignUpSuccessToLogin()
             }
             is AuthState.Error -> {
@@ -94,16 +88,14 @@ fun SignupScreen(
     }
 
     Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
+            .padding(30.dp)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(horizontal = 30.dp)
-        ) {
-
             Image(
                 painter = painterResource(R.drawable.signup),
                 contentDescription = stringResource(R.string.sign_up),
@@ -252,10 +244,7 @@ fun SignupScreen(
                         confirmPassword = textPasswordConfirm
                     )
                 },
-                // --- TAMBAHKAN BARIS INI ---
-                // Tombol akan non-aktif jika state adalah Loading
                 enabled = authState !is AuthState.Loading,
-                // -----------------------------
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary
@@ -297,6 +286,4 @@ fun SignupScreen(
                 }
             }
         }
-
-    }
 }

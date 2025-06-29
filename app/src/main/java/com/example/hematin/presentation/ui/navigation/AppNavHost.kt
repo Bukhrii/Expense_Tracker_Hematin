@@ -7,8 +7,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
 import androidx.navigation.compose.rememberNavController
 import com.example.hematin.presentation.ui.screens.auth.AuthState
 import com.example.hematin.presentation.ui.screens.auth.AuthViewModel

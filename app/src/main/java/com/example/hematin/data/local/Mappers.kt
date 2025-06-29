@@ -16,12 +16,9 @@ fun Transaction.toDomain(): TransactionModel {
     )
 }
 
-// Mengubah dari Model (Domain/Firestore) ke Entity (Room)
 fun TransactionModel.toEntity(): Transaction {
     return Transaction(
-        // ID dari TransactionModel (String) sekarang cocok dengan ID di Entity (String)
         id = this.id,
-        // userId dari TransactionModel (String?) cocok dengan userId di Entity (String?)
         userId = this.userId,
         title = this.title,
         date = this.date,

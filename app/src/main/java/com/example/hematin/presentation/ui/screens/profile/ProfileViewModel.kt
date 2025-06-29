@@ -31,12 +31,9 @@ class ProfileViewModel @Inject constructor(
     val state: State<ProfileState> = _state
 
     init {
-        // PERBAIKAN 1: Hanya panggil satu fungsi untuk memuat data di awal.
         loadUserProfile()
     }
 
-    // PERBAIKAN 2: Hapus fungsi 'getUserProfile()' yang redundan dan
-    // sempurnakan 'loadUserProfile()' menjadi satu-satunya sumber untuk memuat data.
     fun loadUserProfile() {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
@@ -59,13 +56,12 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    // PERBAIKAN 3: Hapus nested viewModelScope yang tidak perlu.
     fun updateUserProfile(username: String, phoneNumber: String) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, updateSuccess = false)
             val currentUser = _state.value.user
             if (currentUser != null) {
-                val updatedUser = currentUser.copy(username = username, phoneNumber = phoneNumber) // Sesuaikan dengan nama field di UserModel
+                val updatedUser = currentUser.copy(username = username, phoneNumber = phoneNumber)
                 when (val result = updateUserUseCase(updatedUser)) {
                     is Resource.Success -> {
                         _state.value = _state.value.copy(

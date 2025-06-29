@@ -23,7 +23,6 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions WHERE userId = :userId ORDER BY date DESC")
     fun getAllByUserId(userId: String): Flow<List<Transaction>>
 
-    // PERBAIKAN: Ubah tipe parameter id menjadi String
     @Query("SELECT * FROM transactions WHERE id = :id")
     fun getById(id: String): Flow<Transaction?>
 

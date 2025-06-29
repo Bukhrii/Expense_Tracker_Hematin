@@ -24,7 +24,6 @@ fun MainNavGraph(navController: NavHostController, onLogout: () -> Unit) {
         startDestination = Screen.HomeScreen.route,
         route = "main_graph_internal"
     ) {
-        // --- Layar Utama ---
         composable(Screen.HomeScreen.route) {
             val transactionViewModel: TransactionViewModel = hiltViewModel()
             val profileViewModel: ProfileViewModel = hiltViewModel()
@@ -35,12 +34,10 @@ fun MainNavGraph(navController: NavHostController, onLogout: () -> Unit) {
             )
         }
 
-        // --- Layar Statistik ---
         composable(Screen.StatisticScreen.route) {
             StatisticScreen(navController)
         }
 
-        // --- Layar Tambah/Edit Transaksi ---
         composable(
             route = Screen.AddTransactionScreen.route + "?transactionId={transactionId}",
             arguments = listOf(
@@ -57,7 +54,6 @@ fun MainNavGraph(navController: NavHostController, onLogout: () -> Unit) {
             )
         }
 
-        // --- PERBAIKAN: Ini adalah definisi yang hilang untuk TransactionDetailScreen ---
         composable(
             route = Screen.TransactionDetailScreen.route + "/{transactionId}",
             arguments = listOf(navArgument("transactionId") {
@@ -67,7 +63,6 @@ fun MainNavGraph(navController: NavHostController, onLogout: () -> Unit) {
             val transactionId = backStackEntry.arguments?.getString("transactionId")
             val viewModel: TransactionViewModel = hiltViewModel()
 
-            // Panggil ViewModel untuk mengambil data. Ini adalah cara yang aman.
             LaunchedEffect(transactionId) {
                 if (transactionId != null) {
                     viewModel.getTransactionDetails(transactionId)
@@ -79,15 +74,12 @@ fun MainNavGraph(navController: NavHostController, onLogout: () -> Unit) {
                 viewModel = viewModel
             )
         }
-        // --------------------------------------------------------------------------
 
-        // --- Layar Daftar Transaksi ---
         composable(Screen.TransactionListScreen.route) {
             val viewModel: TransactionViewModel = hiltViewModel()
             TransactionListScreen(navController, viewModel)
         }
 
-        // --- Layar Profil ---
         composable(Screen.ProfileScreen.route) {
             ProfileScreen(
                 navController = navController,

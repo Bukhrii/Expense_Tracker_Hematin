@@ -2,7 +2,6 @@ package com.example.hematin.presentation.ui.screens.transaction
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,9 +26,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -42,7 +39,6 @@ import com.example.hematin.R
 import com.example.hematin.domain.models.TransactionModel
 import com.example.hematin.presentation.ui.components.DateInput
 import com.example.hematin.presentation.ui.components.Icons.BackButtonIconOnprimary
-import com.example.hematin.presentation.ui.components.Icons.NotificationButtonIcon
 import com.example.hematin.presentation.ui.components.bottomNav.BottomNavigation
 import java.util.Date
 
@@ -53,14 +49,16 @@ fun AddTransactionScreen(
     transactionId: String?,
     viewModel: TransactionViewModel = hiltViewModel()
 ) {
-    val state by viewModel.state
+    val addState = viewModel.state.value.addState
+    val listState = viewModel.state.value.listState
     val context = LocalContext.current
 
     val isEditMode = transactionId != null
-    val existingTransaction by remember(transactionId, state.listState.transactions) {
+
+    val existingTransaction by remember(transactionId, listState.transactions) {
         derivedStateOf {
             if (isEditMode) {
-                state.listState.transactions.find { it.id == transactionId }
+                listState.transactions.find { it.id == transactionId }
             } else {
                 null
             }
@@ -73,9 +71,7 @@ fun AddTransactionScreen(
     var transactionAccount by remember { mutableStateOf("") }
     var transactionCategory by remember { mutableStateOf("") }
 
-    val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = existingTransaction?.date?.time
-    )
+    val datePickerState = rememberDatePickerState()
 
     var expandedStatus by remember { mutableStateOf(false) }
     val listStatus = listOf("Pemasukan", "Pengeluaran")
@@ -91,13 +87,11 @@ fun AddTransactionScreen(
             transactionStatus = it.transactionType
             transactionAccount = it.account
             transactionCategory = it.category
-            // Set tanggal di DatePicker
             datePickerState.selectedDateMillis = it.date.time
         }
     }
 
-    LaunchedEffect(state.addState) {
-        val addState = state.addState
+    LaunchedEffect(addState) {
         if (addState.addSuccess) {
             val message = if (isEditMode) "Transaksi berhasil diperbarui!" else "Transaksi berhasil ditambahkan!"
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
@@ -106,6 +100,7 @@ fun AddTransactionScreen(
         }
         addState.error?.let {
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            viewModel.onAddSuccessShown()
         }
     }
 
@@ -124,24 +119,28 @@ fun AddTransactionScreen(
                     .verticalScroll(rememberScrollState())
             ) {
                 Box(modifier = Modifier.fillMaxWidth()) {
-                    Image(painter = painterResource(R.drawable.ic_topbar), contentDescription = null, modifier = Modifier.fillMaxWidth())
+                    Image(
+                        painter = painterResource(R.drawable.ic_topbar),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxWidth(),
+                        contentScale = ContentScale.FillWidth
+                    )
                     Column(
                         modifier = Modifier.padding(top = 80.dp)
                     ) {
                         Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween,
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 BackButtonIconOnprimary(onClick = { navController.popBackStack() })
+                                Spacer(modifier = Modifier.padding(25.dp))
                                 Text(
                                     text = if (isEditMode) "Edit Transaksi" else "Tambah Transaksi",
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onPrimary
                                 )
-                                NotificationButtonIcon()
                             }
                         }
                         Spacer(modifier = Modifier.padding(vertical = 14.dp))
@@ -254,11 +253,9 @@ fun AddTransactionScreen(
                                         val amountDouble = transactionAmount.toDoubleOrNull() ?: 0.0
                                         val userId = viewModel.getCurrentUserId()
 
-                                        // PERBAIKAN KRUSIAL
                                         val transactionToSave = if (isEditMode) {
-                                            // Jika mode edit, gunakan ID yang sudah ada
                                             TransactionModel(
-                                                id = transactionId!!, // transactionId dari parameter (sudah String)
+                                                id = transactionId!!,
                                                 userId = userId,
                                                 title = transactionName,
                                                 amount = amountDouble,
@@ -268,8 +265,6 @@ fun AddTransactionScreen(
                                                 account = transactionAccount
                                             )
                                         } else {
-                                            // Jika mode tambah, ID tidak perlu diisi.
-                                            // Firestore akan membuatnya secara otomatis.
                                             TransactionModel(
                                                 userId = userId,
                                                 title = transactionName,
@@ -287,10 +282,10 @@ fun AddTransactionScreen(
                                             viewModel.addTransaction(transactionToSave)
                                         }
                                     },
-                                    enabled = !state.addState.isLoading,
+                                    enabled = !addState.isLoading,
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    if (state.addState.isLoading) {
+                                    if (addState.isLoading) {
                                         CircularProgressIndicator(modifier = Modifier.size(24.dp))
                                     } else {
                                         Text(if (isEditMode) "Simpan Perubahan" else "Simpan")

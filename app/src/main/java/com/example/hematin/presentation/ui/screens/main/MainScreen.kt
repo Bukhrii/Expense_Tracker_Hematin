@@ -25,12 +25,11 @@ fun MainScreen(
     val authState by authViewModel.authState.observeAsState()
     val context = LocalContext.current
 
-    // LaunchedEffect ini HANYA aktif selama pengguna berada di MainScreen.
-    // Ini adalah tempat yang tepat untuk memantau status logout.
+
     LaunchedEffect(authState) {
         if (authState is AuthState.Unauthenticated) {
             Toast.makeText(context, "Logout berhasil!", Toast.LENGTH_SHORT).show()
-            onLogout() // Panggil aksi logout yang didefinisikan di AppNavHost
+            onLogout()
         }
     }
 

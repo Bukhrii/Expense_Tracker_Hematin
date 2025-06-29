@@ -41,9 +41,6 @@ fun DateInput(
 ) {
     var showDatePickerDialog by remember { mutableStateOf(false) }
 
-    // PERBAIKAN: Hapus deklarasi ulang 'datePickerState' di sini.
-    // val datePickerState = rememberDatePickerState() <-- BARIS INI DIHAPUS
-
     if (showDatePickerDialog) {
         DatePickerDialog(
             onDismissRequest = { showDatePickerDialog = false },
@@ -59,7 +56,7 @@ fun DateInput(
             }
         ) {
             androidx.compose.material3.DatePicker(
-                state = datePickerState, // Gunakan state dari parameter
+                state = datePickerState,
                 showModeToggle = false
             )
         }

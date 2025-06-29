@@ -11,14 +11,8 @@ import com.example.hematin.data.repository.UserRepositoryImpl
 import com.example.hematin.domain.repository.OnboardingRepository
 import com.example.hematin.domain.repository.TransactionRepository
 import com.example.hematin.domain.repository.UserRepository
-import com.example.hematin.domain.usecase.AddTransactionUseCase
-import com.example.hematin.domain.usecase.DeleteTransactionUseCase
-import com.example.hematin.domain.usecase.GetOnboardingStatus
-import com.example.hematin.domain.usecase.GetTransactionsUseCase
-import com.example.hematin.domain.usecase.GetUserUseCase
-import com.example.hematin.domain.usecase.SaveOnboardingStatus
-import com.example.hematin.domain.usecase.UpdateTransactionUseCase
-import com.example.hematin.domain.usecase.UpdateUserUseCase
+import com.example.hematin.domain.usecase.*
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
@@ -31,6 +25,13 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    @Provides
+    @Singleton
+    fun provideFirebaseAnalytics(@ApplicationContext context: Context): FirebaseAnalytics {
+        return FirebaseAnalytics.getInstance(context)
+    }
+
     @Provides
     @Singleton
     fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
@@ -80,7 +81,7 @@ object AppModule {
             context,
             AppDatabase::class.java,
             "hematin_db"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     @Provides
@@ -121,5 +122,17 @@ object AppModule {
     @Singleton
     fun provideDeleteTransactionUseCase(repository: TransactionRepository): DeleteTransactionUseCase {
         return DeleteTransactionUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetOnboardingStatusUseCase(repository: OnboardingRepository): GetOnboardingStatus {
+        return GetOnboardingStatus(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSaveOnboardingStatusUseCase(repository: OnboardingRepository): SaveOnboardingStatus {
+        return SaveOnboardingStatus(repository)
     }
 }

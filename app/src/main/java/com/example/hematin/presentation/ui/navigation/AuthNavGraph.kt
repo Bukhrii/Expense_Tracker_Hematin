@@ -27,7 +27,6 @@ fun NavGraphBuilder.authNavGraph(navController: NavController) {
         composable(Screen.SignupScreen.route) {
             SignupScreen(
                 onSignUpSuccessToLogin = {
-                    // Setelah registrasi, kembali ke halaman login
                     navController.popBackStack()
                 },
                 onNavigateToLogin = {

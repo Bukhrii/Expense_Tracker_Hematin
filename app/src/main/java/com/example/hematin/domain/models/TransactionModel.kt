@@ -12,7 +12,6 @@ data class TransactionModel(
     val category: String = "",
     val date: Date = Date(),
 
-    // PERBAIKAN: Ganti 'type' dan 'description' dengan field yang benar
     val account: String = "",
-    val transactionType: String = "" // "income" atau "expense"
+    val transactionType: String = ""
 )

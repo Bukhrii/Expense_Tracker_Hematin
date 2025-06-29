@@ -2,7 +2,6 @@ package com.example.hematin.presentation.ui.screens.profile
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,17 +15,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Diamond
-import androidx.compose.material.icons.filled.EnhancedEncryption
-import androidx.compose.material.icons.filled.Mail
-import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -42,21 +33,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.hematin.R
 import com.example.hematin.presentation.ui.components.Icons.BackButtonIconOnprimary
-import com.example.hematin.presentation.ui.components.Icons.NotificationButtonIcon
 import com.example.hematin.presentation.ui.components.bottomNav.BottomNavigation
 import com.example.hematin.presentation.ui.screens.auth.AuthState
 import com.example.hematin.presentation.ui.screens.auth.AuthViewModel
@@ -102,7 +89,12 @@ fun ProfileScreen(
                         .fillMaxWidth()
                         .padding(paddingValues),
                 ) {
-                    Image(painter = painterResource(R.drawable.ic_topbar), contentDescription = null, modifier = Modifier.fillMaxWidth())
+                    Image(
+                        painter = painterResource(R.drawable.ic_topbar),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxWidth(),
+                        contentScale = ContentScale.FillWidth
+                    )
 
                     Column( modifier = Modifier.padding(top = 60.dp)) {
                         Column(
@@ -111,17 +103,16 @@ fun ProfileScreen(
 
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween,
                                 modifier = Modifier
                                     .fillMaxWidth()
                             ) {
                                 BackButtonIconOnprimary(onClick = { navController.popBackStack() })
+                                Spacer(modifier = Modifier.padding(horizontal = 50.dp))
                                 Text(
                                     text = stringResource(R.string.profile),
                                     style = MaterialTheme.typography.titleLarge,
                                     color = MaterialTheme.colorScheme.onPrimary,
                                 )
-                                NotificationButtonIcon()
                             }
                         }
 
@@ -129,7 +120,7 @@ fun ProfileScreen(
 
                         Column(
                             modifier = Modifier
-                                .fillMaxSize() // Agar bisa di-scroll
+                                .fillMaxSize()
                                 .padding(16.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
@@ -139,9 +130,8 @@ fun ProfileScreen(
                                     color = MaterialTheme.colorScheme.primary
                                 )
                             } else if (profileState.user != null) {
-                                // -- Tampilan Profil --
                                 Image(
-                                    painter = painterResource(R.drawable.user_profile), // Ganti dengan gambar profil dinamis jika ada
+                                    painter = painterResource(R.drawable.user_profile),
                                     contentDescription = "Profile Picture",
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier
@@ -159,13 +149,12 @@ fun ProfileScreen(
                                 Text(
                                     text = user?.email ?: "Email tidak tersedia",
                                     style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.secondary,
+                                    color = MaterialTheme.colorScheme.tertiary,
                                     fontWeight = Bold,
                                 )
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                // -- READ Data: Menampilkan data pengguna dari ViewModel --
                                 OutlinedTextField(
                                     value = username,
                                     onValueChange = { username = it },
@@ -186,7 +175,6 @@ fun ProfileScreen(
 
                                 Spacer(modifier = Modifier.height(24.dp))
 
-                                // -- UPDATE Data: Tombol untuk menyimpan perubahan --
                                 Button(
                                     onClick = { profileViewModel.updateUserProfile(username, phoneNumber) },
                                     enabled = !profileState.isLoading,
@@ -200,7 +188,6 @@ fun ProfileScreen(
                                 }
                                 Spacer(modifier = Modifier.height(8.dp))
 
-                                // -- LOGOUT: Tombol untuk keluar --
                                 Button(
                                     onClick = {
                                         authViewModel.signOut()

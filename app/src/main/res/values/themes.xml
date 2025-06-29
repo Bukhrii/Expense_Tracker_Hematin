@@ -4,7 +4,7 @@
     <style name="Theme.Hematin" parent="android:Theme.Material.Light.NoActionBar" />
 
     <style name="Theme.MySplashScreen" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/primary_green</item>
+        <item name="windowSplashScreenBackground">@color/background</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/logo_app_hematin</item>
         <item name="postSplashScreenTheme">@style/Theme.Hematin</item>
     </style>

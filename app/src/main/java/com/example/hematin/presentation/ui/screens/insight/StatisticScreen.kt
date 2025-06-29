@@ -3,7 +3,6 @@ package com.example.hematin.presentation.ui.screens.insight
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.EaseInOutCubic
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,18 +13,18 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.hematin.R
 import com.example.hematin.presentation.ui.components.Icons.BackButtonIcon
 import com.example.hematin.presentation.ui.navigation.Screen
 import com.example.hematin.presentation.ui.screens.transaction.StatisticData
@@ -36,6 +35,7 @@ import ir.ehsannarmani.compose_charts.models.AnimationMode
 import ir.ehsannarmani.compose_charts.models.DrawStyle
 import ir.ehsannarmani.compose_charts.models.LabelProperties
 import ir.ehsannarmani.compose_charts.models.Line
+import ir.ehsannarmani.compose_charts.models.PopupProperties
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,7 +45,7 @@ fun StatisticScreen(
 ) {
     val state by viewModel.state
     val statisticState = state.statisticState
-    var selectedTabIndex by remember { mutableStateOf(0) }
+    var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
     val tabs = listOf("Pengeluaran", "Pemasukan")
 
     Surface(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
@@ -56,7 +56,7 @@ fun StatisticScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 48.dp)
+                        .padding(horizontal = 16.dp, vertical = 28.dp)
                 ) {
                     BackButtonIcon(onClick = { navController.popBackStack() })
                     Text(
@@ -105,7 +105,8 @@ fun StatisticContent(statisticData: StatisticData, type: String) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(vertical = 16.dp)
+            .padding(vertical = 16.dp),
+        contentPadding = PaddingValues(bottom = 80.dp)
     ) {
         item {
             Text(
@@ -114,7 +115,9 @@ fun StatisticContent(statisticData: StatisticData, type: String) {
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold
             )
+
             Spacer(modifier = Modifier.height(16.dp))
+
             val chartColor = if (type == "Pengeluaran") Color.Red else MaterialTheme.colorScheme.primary
             LineChart(
                 modifier = Modifier
@@ -134,9 +137,17 @@ fun StatisticContent(statisticData: StatisticData, type: String) {
                         )
                     )
                 },
+                popupProperties = PopupProperties(
+                    textStyle = TextStyle.Default.copy(
+                        color = chartColor,
+                    ),
+                    contentBuilder = { _, _, value ->
+                        "Rp ${formatAmount(value)}"
+                    }
+                ),
                 labelProperties = LabelProperties(
                     enabled = true,
-                    labels = statisticData.chartData.map { it.label }
+                    labels = statisticData.chartData.map { it.label },
                 ),
                 animationMode = AnimationMode.Together(delayBuilder = { it * 100L }),
             )
@@ -167,9 +178,10 @@ fun StatisticContent(statisticData: StatisticData, type: String) {
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.secondaryContainer)
+                            .background(MaterialTheme.colorScheme.primary)
                             .padding(8.dp),
-                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                        tint = MaterialTheme.colorScheme.onPrimary
+
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Column(modifier = Modifier.weight(1f)) {
@@ -199,6 +211,7 @@ fun StatisticContent(statisticData: StatisticData, type: String) {
             }
         }
     }
+    Spacer(modifier = Modifier.height(100.dp))
 }
 
 @Composable
