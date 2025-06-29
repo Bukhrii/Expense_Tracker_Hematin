@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "235808451345",
+    "project_id": "hematinapp",
+    "storage_bucket": "hematinapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:235808451345:android:83f32773cda6f5731fbab0",
+        "android_client_info": {
+          "package_name": "com.example.hematin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkN1WPYtbFMkyape5xL7ffa7DA7XyUqZw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
